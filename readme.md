@@ -98,21 +98,3 @@ Para uso recorrente, você pode agendar no **Agendador de Tarefas do Windows** o
 | `moverArquivosBackup.py` | Organização e backup de arquivos processados |
 
 Outros scripts no repositório podem ser específicos de cenários antigos; revise antes de publicar credenciais ou endpoints.
-
----
-
-## Adaptando para o seu GitHub (importante)
-
-Este código foi extraído de um cenário com **caminhos e bibliotecas internas**. Para rodar só no seu PC ou num fork público, vale conferir:
-
-- **`sys.path.append(r"C:\rpa\Python")`** e imports de `Classes.*` (Oracle, Postgres, e-mail): substitua por **suas** classes ou remova o que não for usar.
-- **Destinos de pasta** (ex.: `DIR_TEMP`, `DIR_FINAL`) e **e-mails** em `acessaTavily.py`: ajuste para seus diretórios e destinatários.
-- **Custo de API**: monitore chamadas Tavily + OpenAI em produção ou em testes em massa.
-
-Assim o repositório fica claro como **portfólio / estudo**, sem parecer documentação interna de empresa.
-
----
-
-## Licença
-
-Se for publicar no GitHub, defina uma licença (por exemplo MIT) num arquivo `LICENSE` — este README não substitui termos de uso das APIs (OpenAI, Tavily, etc.).
