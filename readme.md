@@ -1,53 +1,121 @@
-                        Agente de Busca e Validação de Imagens (Marketing)
+# Agente de busca e validação de imagens
 
-DESCRIÇÃO DO PROJETO
---------------------
-Este projeto é uma solução de automação (RPA) desenvolvida em Python para enriquecer o cadastro de produtos da empresa. O robô identifica novos itens cadastrados no ERP sem imagens, realiza buscas automatizadas na web, utiliza Inteligência Artificial (GPT-4o) para validar visualmente se a imagem encontrada corresponde ao produto e, por fim, distribui os arquivos aprovados para os servidores de e-commerce e força de vendas.
+Automação em **Python** que encontra imagens de produtos na web, valida com **visão computacional (OpenAI)** e padroniza o resultado para uso em catálogo, com opção de envio para **object storage (MinIO)** e **FTP**.
 
-PRINCIPAIS FUNCIONALIDADES
---------------------
-- Monitoramento de Novos Produtos: Consulta diária no banco de dados Oracle para identificar novos cadastros.
-- Busca Inteligente: Utiliza a API Tavily para varrer a web em busca de imagens de alta qualidade.
-- Validação com IA: Uso da API OpenAI (GPT-4o Vision) para garantir que a imagem baixada é realmente do produto (filtrando banners, logotipos e concorrentes).
-- Padronização: Redimensionamento automático e conversão de imagens para o padrão (JPG, 314x314, fundo branco) usando Pillow.
-- Upload Multi-Plataforma: Envio automático para Object Storage (MinIO) e servidores FTP (Tablet).
-- Relatórios: Envio de e-mail ao final da execução com o status de cada produto (sucesso/falha).
+Projeto pensado para portfólio: demonstra integração com APIs (Tavily, OpenAI), tratamento de imagens (Pillow), orquestração de scripts e fluxo ponta a ponta de “descobrir → validar → publicar”.
 
-PRÉ-REQUISITOS
---------------------
-- Python 3.8 ou superior.
-- Acesso à internet (para APIs Tavily e OpenAI).
-- Acesso à rede interna (Oracle, PostgreSQL, FTP).
-- Executável do MinIO Client (mc.exe) configurado no caminho do sistema (padrão esperado: C:\\mc\\mc.exe).
+---
 
-INSTALAÇÃO E DEPENDÊNCIAS
---------------------
-1\.  Clone o repositório para a máquina local.
-2\.  Instale as dependências listadas (sugere-se criar um arquivo requirements.txt com: psycopg2, requests, beautifulsoup4, tavily-python, openai, Pillow, python-dotenv).
-3\.  Certifique-se de que os diretórios de log e download existam ou que o script tenha permissão para criá-los.
+## O que o fluxo faz
 
-CONFIGURAÇÃO (.ENV)
---------------------
-Crie um arquivo .env na raiz do projeto e configure as seguintes variáveis de ambiente:
-TAVILY\_API\_KEY=sua\_chave\_tavilyOPENAI\_API\_KEY=sua\_chave\_openaiPG\_HOST=ip\_do\_banco\_postgresPG\_PORT=5432PG\_DATABASE=nome\_do\_bancoPG\_USER=usuarioPG\_PASSWORD=senha
+1. **Consulta a bases de dados** (PostgreSQL e, no código original, Oracle via módulos auxiliares) para identificar itens que precisam de imagem.
+2. **Busca na web** com a API [Tavily](https://tavily.com/) em busca de URLs e contexto relevante.
+3. **Validação com IA** usando **GPT-4o (vision)** para reduzir falsos positivos (banners, logos, produtos errados).
+4. **Padronização** das imagens (ex.: redimensionamento, JPG, dimensões e fundo definidos no script).
+5. **Upload** para MinIO (`mc` / cliente) e/ou FTP, além de rotinas de backup e limpeza de pastas.
 
-COMO EXECUTAR
---------------------
-A execução principal é feita através do script "chamaBuscaImagens.py", que serve como ponto de entrada para o orquestrador.
-Comando:python chamaBuscaImagens.py
-Recomenda-se agendar esta execução via Agendador de Tarefas do Windows ou IBM RPA Launcher para rodar diariamente.
+---
 
-ESTRUTURA DOS ARQUIVOS
---------------------
-- chamaBuscaImagens.py: Gatilho inicial da automação.
-- acessaTavily.py: Núcleo da lógica de busca, validação via IA e tratamento de imagem.
-- acessaBancoImagens.py: Camada de conexão com bancos de dados (Oracle/PostgreSQL).
-- sobeImagensMinio.py: Script para espelhamento de imagens no MinIO Server.
-- sobeImagensFTPTablet.py: Script de upload via protocolo FTP.
-- moverArquivosBackup.py: Rotina de limpeza e organização de arquivos processados.
+## Stack
 
-OBSERVAÇÕES IMPORTANTES E SEGURANÇA
---------------------
-- Credenciais FTP: Atualmente, as credenciais do servidor FTP estão hardcoded no script. É altamente recomendado movê-las para o arquivo .env antes de colocar em produção.
-- Dependência Externa: O upload para o MinIO depende do executável "mc.exe". Verifique se ele está presente na máquina host antes de executar.
-- Custo de API: O processo utiliza APIs pagas (OpenAI e Tavily). O volume de buscas deve ser monitorado para controle de custos.
+| Área | Tecnologia |
+|------|------------|
+| Linguagem | Python 3.8+ |
+| Busca | Tavily (`tavily`) |
+| IA | OpenAI API (`openai`) |
+| Imagem | Pillow |
+| Web / parsing | `requests`, BeautifulSoup |
+| Config | `python-dotenv` |
+| Banco | `psycopg2` (+ camada Oracle opcional, ver abaixo) |
+
+Dependências fixadas em [`requirements.txt`](requirements.txt).
+
+---
+
+## Pré-requisitos
+
+- Python **3.8 ou superior**
+- Conta e chaves nas APIs **Tavily** e **OpenAI** (serviços pagos conforme uso)
+- Para MinIO: cliente **`mc.exe`** no PATH ou no caminho esperado pelo script (ex.: `C:\mc\mc.exe`)
+- Rede liberada para APIs e, se for usar DB/FTP, acesso aos seus próprios serviços
+
+---
+
+## Instalação
+
+```bash
+git clone <url-do-seu-fork-ou-repo>
+cd "Agente Imagens - Github"
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+> **Playwright:** o `requirements.txt` inclui `playwright`. Se algum fluxo do projeto usar browser automatizado, pode ser necessário `playwright install` após o `pip install`.
+
+---
+
+## Configuração (`.env`)
+
+Crie um arquivo `.env` na raiz (ele está no `.gitignore` — **nunca** commite chaves).
+
+Exemplo de variáveis usadas no projeto:
+
+```env
+TAVILY_API_KEY=sua_chave_tavily
+OPENAI_API_KEY=sua_chave_openai
+
+PG_HOST=localhost
+PG_PORT=5432
+PG_DATABASE=seu_banco
+PG_USER=usuario
+PG_PASSWORD=senha
+```
+
+Ajuste host, SQL e credenciais de acordo com **seu** ambiente.
+
+---
+
+## Como executar
+
+O ponto de entrada do orquestrador é:
+
+```bash
+python chamaBuscaImagens.py
+```
+
+Para uso recorrente, você pode agendar no **Agendador de Tarefas do Windows** ou com outro scheduler de sua preferência.
+
+---
+
+## Estrutura dos arquivos
+
+| Arquivo | Função |
+|---------|--------|
+| `chamaBuscaImagens.py` | Entrada: chama o fluxo principal |
+| `acessaTavily.py` | Busca na web, validação com IA, tratamento de imagem, e-mail de resumo |
+| `acessaBancosImagens.py` | Conexão e atualização em PostgreSQL (e integração Oracle conforme seu setup) |
+| `sobeImagensMinio.py` | Upload / espelhamento no MinIO |
+| `sobeImagensFTPTablet.py` | Upload via FTP |
+| `moverArquivosBackup.py` | Organização e backup de arquivos processados |
+
+Outros scripts no repositório podem ser específicos de cenários antigos; revise antes de publicar credenciais ou endpoints.
+
+---
+
+## Adaptando para o seu GitHub (importante)
+
+Este código foi extraído de um cenário com **caminhos e bibliotecas internas**. Para rodar só no seu PC ou num fork público, vale conferir:
+
+- **`sys.path.append(r"C:\rpa\Python")`** e imports de `Classes.*` (Oracle, Postgres, e-mail): substitua por **suas** classes ou remova o que não for usar.
+- **Destinos de pasta** (ex.: `DIR_TEMP`, `DIR_FINAL`) e **e-mails** em `acessaTavily.py`: ajuste para seus diretórios e destinatários.
+- **Credenciais FTP**: prefira variáveis de ambiente no `.env` em vez de valores fixos no código.
+- **Custo de API**: monitore chamadas Tavily + OpenAI em produção ou em testes em massa.
+
+Assim o repositório fica claro como **portfólio / estudo**, sem parecer documentação interna de empresa.
+
+---
+
+## Licença
+
+Se for publicar no GitHub, defina uma licença (por exemplo MIT) num arquivo `LICENSE` — este README não substitui termos de uso das APIs (OpenAI, Tavily, etc.).
