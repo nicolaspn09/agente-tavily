@@ -95,8 +95,6 @@ Para uso recorrente, você pode agendar no **Agendador de Tarefas do Windows** o
 | `chamaBuscaImagens.py` | Entrada: chama o fluxo principal |
 | `acessaTavily.py` | Busca na web, validação com IA, tratamento de imagem, e-mail de resumo |
 | `acessaBancosImagens.py` | Conexão e atualização em PostgreSQL (e integração Oracle conforme seu setup) |
-| `sobeImagensMinio.py` | Upload / espelhamento no MinIO |
-| `sobeImagensFTPTablet.py` | Upload via FTP |
 | `moverArquivosBackup.py` | Organização e backup de arquivos processados |
 
 Outros scripts no repositório podem ser específicos de cenários antigos; revise antes de publicar credenciais ou endpoints.
