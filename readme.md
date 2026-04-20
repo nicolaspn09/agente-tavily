@@ -107,7 +107,6 @@ Este código foi extraído de um cenário com **caminhos e bibliotecas internas*
 
 - **`sys.path.append(r"C:\rpa\Python")`** e imports de `Classes.*` (Oracle, Postgres, e-mail): substitua por **suas** classes ou remova o que não for usar.
 - **Destinos de pasta** (ex.: `DIR_TEMP`, `DIR_FINAL`) e **e-mails** em `acessaTavily.py`: ajuste para seus diretórios e destinatários.
-- **Credenciais FTP**: prefira variáveis de ambiente no `.env` em vez de valores fixos no código.
 - **Custo de API**: monitore chamadas Tavily + OpenAI em produção ou em testes em massa.
 
 Assim o repositório fica claro como **portfólio / estudo**, sem parecer documentação interna de empresa.
